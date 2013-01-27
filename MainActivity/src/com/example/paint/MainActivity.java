@@ -2,11 +2,13 @@ package com.example.paint;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,11 +20,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
@@ -41,6 +43,10 @@ public class MainActivity extends FragmentActivity {
     public static ArrayList <Snap> list = new ArrayList <Snap> ();
     public static int indexOfLast;
     private static int width,height;
+    private static File photoPath ;
+    private static String currentPhotoPath;
+	private AlbumStorageDirFactory mAlbumStorageDirFactory = null;
+
     
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     @Override
@@ -156,7 +162,7 @@ public class MainActivity extends FragmentActivity {
         
         );
         
-        
+  
       
     }
     
@@ -250,40 +256,159 @@ public class MainActivity extends FragmentActivity {
     	
     }
     
+    //method called on button click
     public void Picture(View v)
     {
 		dispatchTakePictureIntent(1);//take picture
 
     }
+    
+    //called when the camera button is pressed
     private void dispatchTakePictureIntent(int actionCode) {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-       
-        startActivityForResult(takePictureIntent, actionCode);
+
+		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+		switch(actionCode) {
+		case 1:
+			File f = null;
+			
+			try {
+				f = setUpPhotoFile();
+				currentPhotoPath = f.getAbsolutePath();
+				takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+			} catch (IOException e) {
+				e.printStackTrace();
+				f = null;
+				currentPhotoPath = null;
+			}
+			break;
+
+		default:
+			break;			
+		} // switch
+
+		startActivityForResult(takePictureIntent, actionCode);
     }
     
+private File setUpPhotoFile() throws IOException {
+		
+		File f = createImageFile();
+		currentPhotoPath = f.getAbsolutePath();
+		
+		return f;
+	}
+    
+
+private String getAlbumName() {
+	return getString(R.string.album_name);
+}
+      
+    private File getAlbumDir() {
+    	File storageDir = null;
+
+    	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+			mAlbumStorageDirFactory = new FroyoAlbumDirFactory();
+		} 
+    	else {
+			System.out.println("BASE");
+		}
+    	
+		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			
+			storageDir = mAlbumStorageDirFactory.getAlbumStorageDir(getAlbumName());
+
+			if (storageDir != null) {
+				if (! storageDir.mkdirs()) {
+					if (! storageDir.exists()){
+						Log.d("CameraSample", "failed to create directory");
+						return null;
+					}
+				}
+			}
+			
+		} else {
+			Log.v(getString(R.string.app_name), "External storage is not mounted READ/WRITE.");
+		}
+		
+		return storageDir;
+	}
+    
+    private File createImageFile() throws IOException{
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "IMG_" + timeStamp + "_";
+        File albumF = getAlbumDir();
+		File imageF = File.createTempFile(imageFileName, ".jpg", albumF);
+        return imageF;
+    }
+    
+    private void galleryAddPic() {
+	    Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+		File f = new File(currentPhotoPath);
+	    Uri contentUri = Uri.fromFile(f);
+	    mediaScanIntent.setData(contentUri);
+	    this.sendBroadcast(mediaScanIntent);
+}
+    
+    //when the picture gets taken
     @Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	System.out.println("PICTURE GOTTEN");
-		setPic(data);
+    	
+		if (currentPhotoPath != null) {
+			setPic();
+			galleryAddPic();
+			currentPhotoPath = null;
+		}
 	}
 
     
     
-    private void setPic(Intent intent) {
-    	Bundle extras = intent.getExtras();
-		Bitmap temp = (Bitmap) extras.get("data");
-		int [] pixels = new int[temp.getHeight()*temp.getWidth()];
-		System.out.println(temp.getHeight()+","+temp.getWidth());
-		temp.getPixels(pixels,0,temp.getWidth(),0,0,temp.getWidth(),temp.getHeight());
-		Bitmap b = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length)
-				profileImage.setImageBitmap(Bitmap.createScaledBitmap(b, 120, 120, false));
-		image.setPixels(pixels,0,temp.getWidth(),0,0,width,height);
-		
+    private void setPic() {
+//    	Bundle extras = intent.getExtras();
+//		Bitmap temp = (Bitmap) extras.get("data");//get the bitmap image
+//		
+//		int [] pixels = new int[temp.getHeight()*temp.getWidth()];
+//		System.out.println(temp.getHeight()+","+temp.getWidth());
+//		temp.getPixels(pixels,0,temp.getWidth(),0,0,temp.getWidth(),temp.getHeight());
+//		Bitmap b = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length)
+//				profileImage.setImageBitmap(Bitmap.createScaledBitmap(b, 120, 120, false));
+//		image.setPixels(pixels,0,temp.getWidth(),0,0,width,height);
+     	
+    	    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+    	    bmOptions.inJustDecodeBounds = true;
+    	    BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+    	    int photoW = bmOptions.outWidth;
+    	    int photoH = bmOptions.outHeight;
+    	    
+    	    //scales the image from the camera to the display area.  (screen resolution)
+    	    int scaleFactor = 1;
+   		 	System.out.println("PWidth:"+photoW+","+photoH);
+    		 System.out.println("Width:"+width+","+height);
+    		 
+    		 System.out.println("HERE");
+    		if ((width > 0) || (height > 0)) {
+    			scaleFactor = Math.min(photoW/width, photoH/height);	
+    		}	
+   		 System.out.println("Scale Factor:"+scaleFactor);
+
+    		    		
+    		 bmOptions.inJustDecodeBounds = false;
+    		 bmOptions.inSampleSize = scaleFactor+1;
+    		 bmOptions.inPurgeable = true;
+    		  
+    		 image = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+    		 image = Bitmap.createScaledBitmap(image,width,height,false);   
+    		 System.out.println(image.getWidth()+","+image.getHeight());
+    		 System.out.println("HERE");
+    	     intent = new Intent(this, CanvasActivity.class);
+    	     startActivity(intent);
     }
+  
+    
     
     public static int getWidth()
     {
-    return width;	
+    	return width;	
     }
     
     public static int getHeight()

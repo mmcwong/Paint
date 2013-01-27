@@ -32,6 +32,7 @@
     <string name="blue">B&#160;&#160;&#160;</string>
      <string name="blank">&#160;&#160;&#160;&#160;&#160;&#160;</string>
      <string name="camera_button">Camera</string>
+     <string name="album_name">Photos</string>
     
     
 </resources>

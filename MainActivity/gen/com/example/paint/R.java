@@ -47,6 +47,7 @@ public final class R {
         public static final int activity_open_gl=0x7f060003;
     }
     public static final class string {
+        public static final int album_name=0x7f04001f;
         public static final int app_name=0x7f040000;
         public static final int blank=0x7f04001d;
         public static final int blue=0x7f04001c;
