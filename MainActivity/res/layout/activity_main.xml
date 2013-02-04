@@ -164,7 +164,7 @@
             android:id="@+id/colorSquare"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#ff000000"
+            android:background="#FF0000"
             android:text="@string/blank"
             android:textSize="20dp" />
     </LinearLayout>
@@ -184,7 +184,7 @@
             android:id="@+id/redValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/zero"
+            android:text="@string/twofiftyfive"
             android:textSize="20dp" />
 
         <SeekBar
@@ -192,7 +192,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:max="255"
-            android:minWidth="255dp" />
+            android:minWidth="255dp"
+            android:progress="255" />
     </LinearLayout>
 
     <LinearLayout

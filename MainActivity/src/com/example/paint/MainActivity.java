@@ -36,7 +36,7 @@ public class MainActivity extends FragmentActivity {
     public final static String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     public TextView value,redValue,greenValue,blueValue,square;
     public SeekBar seekbar, redSeekbar, greenSeekbar,blueSeekbar;
-    public static int brush_size=30,red_value=0,green_value=0,blue_value=0;
+    public static int brush_size=30,red_value=255,green_value=0,blue_value=0;
     public static String brush_style="Circle";
     public static Bitmap image =null;
     private Intent intent;
@@ -356,7 +356,7 @@ private String getAlbumName() {
     	
 		if (currentPhotoPath != null) {
 			setPic();
-			galleryAddPic();
+//			galleryAddPic();
 			currentPhotoPath = null;
 		}
 	}
