@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Paint4</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="album_name">Photos</string>
+    <string name="Colour">Colour: </string>
+    <string name="BrushSize">Brush Size: </string>
+    <string name="Back">Back</string>
+    <string name="ScratchPad">Scratch Pad</string>
+    <string name="UserDropperColour">Use Dropper</string>
+    <string name="UseColour">Do you want to use this colour?</string>
+    <string name="Ok">OK</string>
+    <string name="Yes">Yes</string>
+    <string name="Cancel">Cancel</string>
+    <string name="Save">Save</string>
+    <string name="Opacity">Opacity</string>
+</resources>
